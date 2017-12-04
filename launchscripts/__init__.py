@@ -10,7 +10,7 @@ from fman.url import as_url
 from subprocess import run, PIPE
 
 #
-# Function:       _GetScriptVars  
+# Function:       _GetScriptVars
 #
 # Description:    This function gets the variables for this
 #                 plugin.
@@ -266,6 +266,13 @@ class CreateScript(DirectoryPaneCommand):
                 #
                 fp = open(newScript,"w+")
                 fp.write("#!/bin/sh\n\n")
+                fp.write("#\n# The following variable are usable:\n#\n")
+                fp.write("# $FILES_SELECTED - The currently selected file")
+                fp.write("# $LEFT_PANE - The directory of the left pane")
+                fp.write("# $RIGHT_PANE - The directory of the right pane")
+                fp.write("# $CURRENT_DIRECTORY - The currently selected directory")
+                fp.write("# $LEFT_PANE_SELECTED_FILE - The currently selected file in the left pane")
+                fp.write("# $RIGHT_PANE_SELECTED_FILE - The currently selected file in the right pane")
                 fp.close()
                 os.chmod(newScript,0o755)
 
