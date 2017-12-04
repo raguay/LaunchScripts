@@ -44,10 +44,15 @@ New script files will be created in the user specified scripts directory when th
 The plugin will create the following environment variables for the scripts to use:
 
 $FILES_SELECTED - The currently selected file
+
 $LEFT_PANE - The directory of the left pane
+
 $RIGHT_PANE - The directory of the right pane
+
 $CURRENT_DIRECTORY - The currently selected directory
+
 $LEFT_PANE_SELECTED_FILE - The currently selected file in the left pane
+
 $RIGHT_PANE_SELECTED_FILE - The currently selected file in the right pane
 
 ### Features
