@@ -4,6 +4,7 @@
 from core.quicksearch_matchers import contains_chars
 from fman import DirectoryPaneCommand, show_prompt, show_quicksearch, QuicksearchItem, show_status_message, clear_status_message, save_json, load_json, show_alert
 import os
+import json
 import re
 from fman.url import as_human_readable
 from fman.url import as_url
@@ -23,7 +24,8 @@ def _GetScriptVars():
     if scriptVars is None:
         scriptVars = dict()
         scriptVars['show_output'] = True
-        scriptVars['directory'] = '~/bin'
+        scriptVars['directory'] = os.path.expanduser('~/bin')
+        scriptVars['local_shell'] = os.path.expanduser('~/.bashrc')
         save_json("LaunchScript.json", scriptVars)
     return(scriptVars)
 
@@ -50,6 +52,25 @@ class GoToScriptsDir(DirectoryPaneCommand):
     def __call__(self):
         scriptDir = _GetScriptVars()
         self.pane.set_path(as_url(os.path.expanduser(scriptDir['directory'] + os.sep)))
+
+#
+# Function:   SetShellScript
+#
+# Description: This function sets the path to the users
+#              shell script or initializing the shell.
+#
+class SetShellScript(DirectoryPaneCommand):
+    def __call__(self):
+        scriptVars = _GetScriptVars()
+        shellFile, status = show_prompt("What is your shell script?")
+        show_alert(shellFile)
+        shellFile = os.path.expanduser(shellFile)
+        show_alert(shellFile)
+        if not os.path.isfile(shellFile):
+            show_alert("Not a real file.")
+        else:
+            scriptVars['local_shell'] = shellFile
+            _SaveScriptVars(scriptVars)
 
 #
 # Function:   SetShowOutput
@@ -161,7 +182,7 @@ class LaunchScript(DirectoryPaneCommand):
             #
             # Run the script.
             #
-            Output = run("'" + scriptVars['directory'] + "/" + script + "'",stdout=PIPE,shell=True)
+            Output = run("source " + scriptVars['local_shell'] + "; '" + scriptVars['directory'] + "/" + script + "'",stdout=PIPE,shell=True)
             if scriptVars['show_output']:
                 show_alert(Output.stdout.decode("utf-8"))
         clear_status_message()
@@ -282,3 +303,61 @@ class CreateScript(DirectoryPaneCommand):
                 if self.pane.is_command_visible('open_with_editor'):
                     self.pane.run_command('open_with_editor',{'url': as_url(newScript)})
         clear_status_message()
+
+#
+# Function:    LaunchNPMScript
+#
+# Description: This class performs the function of
+#              launching an npm script.
+#
+class LaunchNpmScript(DirectoryPaneCommand):
+    #
+    # This directory command is for launching
+    # a selected script.
+    #
+    def __call__(self):
+        show_status_message('Launching a Script...')
+        if os.path.isfile(as_human_readable(self.pane.get_path()) + os.path.sep + 'package.json'):
+            result = show_quicksearch(self._suggest_script)
+            if result:
+                #
+                # Launch the script given. Show the output.
+                #
+                query, script = result
+
+                #
+                # Get the variables for this plugin
+                #
+                scriptVars = _GetScriptVars()
+
+                #
+                # Run the script.
+                #
+                saveDir = os.getcwd()
+                os.chdir(as_human_readable(self.pane.get_path()) + os.path.sep)
+                Output = run("source " + scriptVars['local_shell'] + "; npm " + script,stdout=PIPE,shell=True)
+                os.chdir(saveDir)
+                if scriptVars['show_output']:
+                    show_alert(Output.stdout.decode("utf-8"))
+        else:
+            show_alert("Not a NPM project directory.")
+        clear_status_message()
+
+    def _suggest_script(self, query):
+        scripts = []
+        npmPackagePath = as_human_readable(self.pane.get_path()) + os.path.sep + 'package.json'
+        npmPackagePtr = open(npmPackagePath,"r")
+        npmPackage = json.loads(npmPackagePtr.read())
+        npmPackagePtr.close()
+        for scriptName, command in npmPackage["scripts"].items():
+            scripts.append(scriptName)
+
+        #
+        # Suggested one to the user and let them pick.
+        #
+        for script in scripts:
+            if script.strip() != "":
+                scriptName = script
+                match = contains_chars(scriptName.lower(), query.lower())
+                if match or not query:
+                    yield QuicksearchItem(scriptName, highlight=match)

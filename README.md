@@ -10,6 +10,8 @@ After restarting **fman**, you will have the ability to set a scripts directory,
 
 Once loaded, use the `set script directory` command to set a directory where all your scripts will be placed. The default location is `~/bin`. Then use the other commands to interact with the scripts.
 
+Then use the `set shell script` command to set your shell's initializing script. You can give it `~/.zshrc` and it will expand out the home directory okay. This is used to keep a consistant environment when executing scripts. It is necessary to properly run the `launch npm script` command.
+
 #### HotKeys Set
 
 None set.
@@ -28,6 +30,9 @@ This command will set the plug-in to not show the output of running a script.
 `set script directory`
 This command sets the currently highlighted directory as the script directory for running and creating scripts.
 
+`set shell script`
+This command allows the user to tell the plugin what script is their shell's initializing script. You can give it `~/.zshrc` and it will expand it to the absolute path. This is used to setup the proper environment for running the scripts.
+
 `launch script`
 This command will run a script out of the script directory. A list of script files in the script directory will be presented to the user. Once selected, that script will be ran.
 
@@ -36,6 +41,9 @@ This command will allow the user to edit the script selected. A list of scripts 
 
 `create script`
 This command will ask for a script name. If a file or directory doesn't exist with that name, it will be created, a base script template will be written to it, the execution bit will be set, and the `open with editor` command will be called to edit the newly created script.
+
+`launch npm script`
+This command will list all the npm scripts listed in the current directory's package.json file. It will then run the script the user selects from that list.
 
 #### Files Created and Used
 
@@ -61,4 +69,10 @@ $RIGHT_PANE_SELECTED_FILE - The currently selected file in the right pane
 - Launch scripts from the script directory.
 - Edit scripts in the scripts directory.
 - Create new scripts in the scripts directory.
+- Launch a NPM script in a directory with a `package.json` file.
+- Set the shell initializing script to setup the environment properly.
 - Currently, only tested under macOS.
+
+### Features Still in the Works
+
+- Run a command line and save them in a history buffer.
