@@ -63,9 +63,7 @@ class SetShellScript(DirectoryPaneCommand):
     def __call__(self):
         scriptVars = _GetScriptVars()
         shellFile, status = show_prompt("What is your shell script?")
-        show_alert(shellFile)
         shellFile = os.path.expanduser(shellFile)
-        show_alert(shellFile)
         if not os.path.isfile(shellFile):
             show_alert("Not a real file.")
         else:
