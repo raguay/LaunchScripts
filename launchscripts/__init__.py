@@ -161,7 +161,7 @@ class LaunchScript(DirectoryPaneCommand):
             #
             # Run the script.
             #
-            Output = run(scriptVars['directory'] + "/" + script,stdout=PIPE,shell=True)
+            Output = run("'" + scriptVars['directory'] + "/" + script + "'",stdout=PIPE,shell=True)
             if scriptVars['show_output']:
                 show_alert(Output.stdout.decode("utf-8"))
         clear_status_message()
