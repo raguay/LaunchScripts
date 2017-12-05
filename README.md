@@ -61,3 +61,4 @@ $RIGHT_PANE_SELECTED_FILE - The currently selected file in the right pane
 - Launch scripts from the script directory.
 - Edit scripts in the scripts directory.
 - Create new scripts in the scripts directory.
+- Currently, only tested under macOS.
