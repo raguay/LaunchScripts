@@ -45,6 +45,25 @@ This command will ask for a script name. If a file or directory doesn't exist wi
 `launch npm script`
 This command will list all the npm scripts listed in the current directory's package.json file. It will then run the script the user selects from that list.
 
+`run command line`
+This command will prompt the user for a command line string. That string will be ran and the results display if the `set show output` is set. These command lines can use the following environment variables:
+
+$cd - The current directory
+
+$lp - The left panel directory
+
+$lpf - The left panel file
+
+$rp - The right panel directory
+
+$rpf - The right panel file
+
+$cf - The current file under the cursor of the current panel. The path is removed and is just the file name. Since the directory is moved to before running the command, this makes for an easy way to reference the current file without worrying about special characters in the path (like spaces).
+
+The commands are sorted and similar command lines are removed to compact the history. Therefore, you can run the same command many times, but it will be in the history only once. Unfortunately, this doesn't preserve the order of command execution.
+
+If you are using a full path environment variable, you will want to reference it like this:  `ls "${cd}"`. This will list the current directory with preserving the file path spaces. But, since the current directory is moved to before running the command, you can just use `ls`. This is just to illustrate the issue.
+
 #### Files Created and Used
 
 New script files will be created in the user specified scripts directory when the `create script` command is issued.
