@@ -91,7 +91,8 @@ $RIGHT_PANE_SELECTED_FILE - The currently selected file in the right pane
 - Launch a NPM script in a directory with a `package.json` file.
 - Set the shell initializing script to setup the environment properly.
 - Currently, only tested under macOS.
+- Run a command line and save them in a history buffer.
 
 ### Features Still in the Works
 
-- Run a command line and save them in a history buffer.
+- Run Gulp commands
