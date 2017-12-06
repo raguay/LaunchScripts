@@ -317,27 +317,34 @@ class LaunchNpmScript(DirectoryPaneCommand):
     def __call__(self):
         show_status_message('Launching a Script...')
         if os.path.isfile(as_human_readable(self.pane.get_path()) + os.path.sep + 'package.json'):
-            result = show_quicksearch(self._suggest_script)
-            if result:
-                #
-                # Launch the script given. Show the output.
-                #
-                query, script = result
+            npmPackagePath = as_human_readable(self.pane.get_path()) + os.path.sep + 'package.json'
+            npmPackagePtr = open(npmPackagePath,"r")
+            npmPackage = json.loads(npmPackagePtr.read())
+            npmPackagePtr.close()
+            if 'scripts' in npmPackage:
+                result = show_quicksearch(self._suggest_script)
+                if result:
+                    #
+                    # Launch the script given. Show the output.
+                    #
+                    query, script = result
 
-                #
-                # Get the variables for this plugin
-                #
-                scriptVars = _GetScriptVars()
+                    #
+                    # Get the variables for this plugin
+                    #
+                    scriptVars = _GetScriptVars()
 
-                #
-                # Run the script.
-                #
-                saveDir = os.getcwd()
-                os.chdir(as_human_readable(self.pane.get_path()) + os.path.sep)
-                Output = run("source " + scriptVars['local_shell'] + "; npm " + script,stdout=PIPE,shell=True)
-                os.chdir(saveDir)
-                if scriptVars['show_output']:
-                    show_alert(Output.stdout.decode("utf-8"))
+                    #
+                    # Run the script.
+                    #
+                    saveDir = os.getcwd()
+                    os.chdir(as_human_readable(self.pane.get_path()) + os.path.sep)
+                    Output = run("source " + scriptVars['local_shell'] + "; npm " + script,stdout=PIPE,shell=True)
+                    os.chdir(saveDir)
+                    if scriptVars['show_output']:
+                        show_alert(Output.stdout.decode("utf-8"))
+            else:
+                show_alert("No scripts defined.")
         else:
             show_alert("Not a NPM project directory.")
         clear_status_message()
