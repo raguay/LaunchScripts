@@ -26,6 +26,7 @@ def _GetScriptVars():
         scriptVars['show_output'] = True
         scriptVars['directory'] = os.path.expanduser('~/bin')
         scriptVars['local_shell'] = os.path.expanduser('~/.bashrc')
+        scriptVars['command_line_history'] = ['ls -la']
         save_json("LaunchScript.json", scriptVars)
     return(scriptVars)
 
@@ -359,3 +360,88 @@ class LaunchNpmScript(DirectoryPaneCommand):
                 match = contains_chars(scriptName.lower(), query.lower())
                 if match or not query:
                     yield QuicksearchItem(scriptName, highlight=match)
+
+#
+# Function:    RunCommandLine
+#
+# Description: This class performs the function of
+#              getting a command line from the user
+#              and running it. It allows for the selection
+#              from past command lines.
+#
+class RunCommandLine(DirectoryPaneCommand):
+    #
+    # This directory command is for launching
+    # a selected script.
+    #
+    def __call__(self):
+        show_status_message('Launching a Command Line...')
+        result = show_quicksearch(self._suggest_script)
+        if result:
+            #
+            # Launch the script given. Show the output.
+            #
+            query, script = result
+            if query != '':
+                script = query
+
+            #
+            # Get the variables for this plugin
+            #
+            scriptVars = _GetScriptVars()
+
+            #
+            # Save the command line.
+            #
+            scriptVars['command_line_history'].append(script)
+
+            #
+            # Set the environment variables for the scripts to use.
+            #
+            os.putenv('cd', as_human_readable(self.pane.get_path()))
+            panes = self.pane.window.get_panes()
+            os.putenv('lp', as_human_readable(panes[0].get_path()))
+            os.putenv('lpf',as_human_readable(panes[0].get_file_under_cursor()))
+            os.putenv('rp', as_human_readable(panes[1].get_path()))
+            os.putenv('rpf',as_human_readable(panes[1].get_file_under_cursor()))
+            os.putenv('cf', os.path.basename(as_human_readable(self.pane.get_file_under_cursor())))
+
+            #
+            # Run the script.
+            #
+            saveDir = os.getcwd()
+            os.chdir(as_human_readable(self.pane.get_path()) + os.path.sep)
+            scriptLine = "source " + scriptVars['local_shell'] + "; " + script
+            Output = run(scriptLine,stdout=PIPE,shell=True)
+            os.chdir(saveDir)
+            if scriptVars['show_output']:
+                show_alert(Output.stdout.decode("utf-8"))
+            scriptVars['command_line_history'] = CleanCommandLineHistory(scriptVars['command_line_history'])
+            _SaveScriptVars(scriptVars)
+        clear_status_message()
+
+    def _suggest_script(self, query):
+        scriptVars = _GetScriptVars()
+        scripts = scriptVars['command_line_history']
+
+        #
+        # Suggested one to the user and let them pick.
+        #
+        for script in scripts:
+            if script.strip() != "":
+                scriptName = script
+                match = contains_chars(scriptName.lower(), query.lower())
+                if match or not query:
+                    yield QuicksearchItem(scriptName, highlight=match)
+
+
+def CleanCommandLineHistory(history_list):
+    newList = []
+    commandLine = ""
+    for cmd in sorted(history_list):
+        if commandLine == cmd:
+            commandLine = cmd
+        else:
+            commandLine = cmd
+            newList.append(cmd)
+    return(newList)
