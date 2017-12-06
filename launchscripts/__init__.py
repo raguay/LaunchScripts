@@ -414,10 +414,13 @@ class RunCommandLine(DirectoryPaneCommand):
             scriptLine = "source " + scriptVars['local_shell'] + "; " + script
             Output = run(scriptLine,stdout=PIPE,shell=True)
             os.chdir(saveDir)
-            if scriptVars['show_output']:
-                show_alert(Output.stdout.decode("utf-8"))
-            scriptVars['command_line_history'] = CleanCommandLineHistory(scriptVars['command_line_history'])
-            _SaveScriptVars(scriptVars)
+            if Output.returncode == 0:
+                if scriptVars['show_output']:
+                    show_alert(Output.stdout.decode("utf-8"))
+                scriptVars['command_line_history'] = CleanCommandLineHistory(scriptVars['command_line_history'])
+                _SaveScriptVars(scriptVars)
+            else:
+                show_alert("Command line error.")
         clear_status_message()
 
     def _suggest_script(self, query):
