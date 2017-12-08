@@ -182,8 +182,11 @@ class LaunchScript(DirectoryPaneCommand):
             # Run the script.
             #
             Output = run("source " + scriptVars['local_shell'] + "; '" + scriptVars['directory'] + "/" + script + "'",stdout=PIPE,shell=True)
-            if scriptVars['show_output']:
-                show_alert(Output.stdout.decode("utf-8"))
+            if Output.returncode == 0:
+                if scriptVars['show_output']:
+                    show_alert(Output.stdout.decode("utf-8"))
+            else:
+                show_alert("Command line error.")
         clear_status_message()
 
     def _suggest_script(self, query):
@@ -339,10 +342,13 @@ class LaunchNpmScript(DirectoryPaneCommand):
                     #
                     saveDir = os.getcwd()
                     os.chdir(as_human_readable(self.pane.get_path()) + os.path.sep)
-                    Output = run("source " + scriptVars['local_shell'] + "; npm " + script,stdout=PIPE,shell=True)
+                    Output = run("source " + scriptVars['local_shell'] + "; npm run " + script,stdout=PIPE,shell=True)
                     os.chdir(saveDir)
-                    if scriptVars['show_output']:
-                        show_alert(Output.stdout.decode("utf-8"))
+                    if Output.returncode == 0:
+                        if scriptVars['show_output']:
+                            show_alert(Output.stdout.decode("utf-8"))
+                    else:
+                        show_alert("Command line error.")
             else:
                 show_alert("No scripts defined.")
         else:
