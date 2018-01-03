@@ -173,9 +173,17 @@ class LaunchScript(DirectoryPaneCommand):
             os.putenv('CURRENT_DIRECTORY', as_human_readable(self.pane.get_path()))
             panes = self.pane.window.get_panes()
             os.putenv('LEFT_PANE', as_human_readable(panes[0].get_path()))
-            os.putenv('LEFT_PANE_SELECTED_FILE',as_human_readable(panes[0].get_file_under_cursor()))
+            path = panes[0].get_file_under_cursor()
+            if path is not None:
+                os.putenv('LEFT_PANE_SELECTED_FILE',as_human_readable(path))
+            else:
+                os.putenv('LEFT_PANE_SELECTED_FILE',"")
             os.putenv('RIGHT_PANE', as_human_readable(panes[1].get_path()))
-            os.putenv('RIGHT_PANE_SELECTED_FILE',as_human_readable(panes[1].get_file_under_cursor()))
+            path = panes[1].get_file_under_cursor()
+            if path is not None:
+                os.putenv('RIGHT_PANE_SELECTED_FILE',as_human_readable(path))
+            else:
+                os.putenv('RIGHT_PANE_SELECTED_FILE',"")
             os.putenv('FILES_SELECTED',fileList)
 
             #
