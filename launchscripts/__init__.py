@@ -209,11 +209,17 @@ class LaunchScript(DirectoryPaneCommand):
         # Suggested one to the user and let them pick.
         #
         for script in scripts:
-            if script.strip() != "":
-                scriptName = script
-                match = contains_chars(scriptName.lower(), query.lower())
-                if match or not query:
-                    yield QuicksearchItem(scriptName, highlight=match)
+            scriptName = script.strip()
+            if scriptName != "":
+                match = False
+                if query:
+                    match = contains_chars(script.lower(), query.lower())
+                else:
+                    match = True
+                if scriptName[0] == '.' or scriptName[0] == 'L' or scriptName[0] == 'R':
+                    match = False
+                if match:
+                    yield QuicksearchItem(scriptName)
 
 #
 # Function:    EditScript
@@ -262,11 +268,17 @@ class EditScript(DirectoryPaneCommand):
         # Suggested one to the user and let them pick.
         #
         for script in scripts:
-            if script.strip() != "":
-                scriptName = script
-                match = contains_chars(scriptName.lower(), query.lower())
-                if match or not query:
-                    yield QuicksearchItem(scriptName, highlight=match)
+            scriptName = script.strip()
+            if scriptName != "":
+                match = False
+                if query:
+                    match = contains_chars(script.lower(), query.lower())
+                else:
+                    match = True
+                if scriptName[0] == '.' or scriptName[0] == 'L' or scriptName[0] == 'R':
+                    match = False
+                if match:
+                    yield QuicksearchItem(scriptName)
 
 #
 # Function:    CreateScript
