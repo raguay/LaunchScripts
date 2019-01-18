@@ -82,6 +82,10 @@ $LEFT_PANE_SELECTED_FILE - The currently selected file in the left pane
 
 $RIGHT_PANE_SELECTED_FILE - The currently selected file in the right pane
 
+### Example Scripts
+
+I created another [repository](https://github.com/raguay/fman-Launch-Script-Scripts) of scripts that I use with this plugin. Give them a try and add your own!
+
 ### Features
 
 - Set a scripts directory to store scripts.
