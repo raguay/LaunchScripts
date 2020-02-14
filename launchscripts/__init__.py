@@ -394,6 +394,65 @@ class LaunchNpmScript(DirectoryPaneCommand):
                 if match or not query:
                     yield QuicksearchItem(scriptName, highlight=match)
 
+class LaunchMaskScript(DirectoryPaneCommand):
+    #
+    # This directory command is for launching
+    # a selected script.
+    #
+    def __call__(self):
+        show_status_message('Launching a Mask Script...')
+        if os.path.isfile(as_human_readable(self.pane.get_path()) + os.path.sep + 'package.json'):
+            npmPackagePath = as_human_readable(self.pane.get_path()) + os.path.sep + 'maskfile.md'
+            npmPackagePtr = open(npmPackagePath,"r")
+            npmPackage = json.loads(npmPackagePtr.read())
+            npmPackagePtr.close()
+            result = show_quicksearch(self._suggest_script)
+            if result:
+                #
+                # Launch the script given. Show the output.
+                #
+                query, script = result
+
+                #
+                # Get the variables for this plugin
+                #
+                scriptVars = _GetScriptVars()
+
+                #
+                # Run the script.
+                #
+                saveDir = os.getcwd()
+                os.chdir(as_human_readable(self.pane.get_path()) + os.path.sep)
+                Output = run("source " + scriptVars['local_shell'] + "; mask " + script,stdout=PIPE,shell=True)
+                os.chdir(saveDir)
+                if Output.returncode == 0:
+                    if scriptVars['show_output']:
+                        show_alert(Output.stdout.decode("utf-8"))
+                else:
+                    show_alert("Command line error.")
+        else:
+            show_alert("Not a Mask project directory.")
+        clear_status_message()
+
+    def _suggest_script(self, query):
+        scripts = []
+        maskPackagePath = as_human_readable(self.pane.get_path()) + os.path.sep + 'maskfile.md'
+        maskPackagePtr = open(npmPackagePath,"r")
+        maskScript = npmPackagePtr.read()
+        maskPackagePtr.close()
+        for scriptName, command in scriptNames:
+            scripts.append(scriptName)
+
+        #
+        # Suggested one to the user and let them pick.
+        #
+        for script in scripts:
+            if script.strip() != "":
+                scriptName = script
+                match = contains_chars(scriptName.lower(), query.lower())
+                if match or not query:
+                    yield QuicksearchItem(scriptName, highlight=match)
+
 #
 # Function:    RunCommandLine
 #
